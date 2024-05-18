@@ -1,37 +1,68 @@
-import { createClient } from "@/utils/supabase/server";
-import Link from "next/link";
-import { redirect } from "next/navigation";
+'use client'
 
-export default async function AuthButton() {
-  const supabase = createClient();
+import { useEffect, useState } from 'react';
+import { getCurrentUser, getProfile, signOut } from '@/utils/supabase/auth';
+import { Menu, Button, rem, Avatar, Group } from '@mantine/core';
+import { IconExternalLink, IconLogout } from '@tabler/icons-react';
+import { useRouter } from 'next/navigation';
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default function AuthButton() {
+  const [profile, setProfile] = useState<any | null>(null);
 
-  const signOut = async () => {
-    "use server";
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userData = await getCurrentUser();
+      if (userData?.data?.user) {
+        const { profile, error } = await getProfile(userData.data.user.id);
+        if (error) {
+          console.error("Error fetching profile:", error);
+          return;
+        }
+        setProfile(profile);
+      }
+    };
+    fetchUser();
+  }, []);
 
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    return redirect("/login");
-  };
+  const image = 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-5.png';
 
-  return user ? (
-    <div className="flex items-center gap-4">
-      Hey, {user.email}!
-      <form action={signOut}>
-        <button className="py-2 px-4 rounded-md no-underline bg-btn-background hover:bg-btn-background-hover">
-          Logout
-        </button>
-      </form>
+  const router = useRouter();
+
+  return (
+    <div className='h-full'>
+      <Menu width={200} shadow="md">
+        <Menu.Target >
+          <button className='flex flex-row gap-2 p-2 items-center justify-items-center '>
+            <Avatar size="sm" src={image} radius={'xl'} />
+            <div className='hidden md:block'>
+              {profile && profile.nama_lengkap}
+            </div>
+          </button>
+        </Menu.Target>
+
+        <Menu.Dropdown>
+          <Menu.Item component="a" href="https://mantine.dev">
+            Kunjungi Profile
+          </Menu.Item>
+          <Menu.Item
+            color="red"
+          >
+            <button
+              onClick={async () => {
+                signOut();
+                router.refresh();
+              }}
+              className="w-full rounded-md flex justify-start items-center text-red-500 h-full"
+            >
+              <div className="flex items-center gap-2">
+                <IconLogout style={{ width: rem(20), height: rem(20) }} />
+                Logout
+              </div>
+
+            </button>
+          </Menu.Item>
+        </Menu.Dropdown>
+      </Menu>
     </div>
-  ) : (
-    <Link
-      href="/login"
-      className="py-2 px-3 flex rounded-md no-underline bg-btn-background hover:bg-btn-background-hover"
-    >
-      Login
-    </Link>
   );
 }

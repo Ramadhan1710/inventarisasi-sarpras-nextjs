@@ -1,16 +1,11 @@
 "use client"
 
 import {
-  TextInput,
-  PasswordInput,
-  Checkbox,
   Anchor,
   Paper,
   Title,
   Text,
   Container,
-  Group,
-  Button,
 } from '@mantine/core';
 import classes from "@/public/css/authentication.module.css";
 import { SubmitButton } from "@/components/submit-button";

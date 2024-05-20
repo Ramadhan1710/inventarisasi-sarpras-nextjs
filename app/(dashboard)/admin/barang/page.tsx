@@ -5,7 +5,7 @@ import TabelBarangAdmin from './tabel-barang';
 
 export default function AdminBarangPage() {
   return (
-    <div className="">
+    <div>
       <TabelBarangAdmin />
     </div>
   );

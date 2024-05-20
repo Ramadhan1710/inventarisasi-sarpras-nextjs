@@ -1,4 +1,4 @@
-import profileService from "@/services/profile";
+import profileService from "@/services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = 'force-dynamic' // defaults to auto

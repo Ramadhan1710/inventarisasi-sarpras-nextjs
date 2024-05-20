@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import {
@@ -16,7 +15,7 @@ import {
   Group,
   Button,
 } from '@mantine/core';
-import classes from "./authentication.module.css";
+import classes from "@/public/css/authentication.module.css";
 import { SubmitButton } from "./submit-button";
 
 export default function LoginPage({ searchParams }: { searchParams: { message: string } }) {

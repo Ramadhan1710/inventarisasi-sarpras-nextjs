@@ -8,7 +8,7 @@ interface Props {
 }
 export default function AdminCard({ title, subtitle, icon }: Props) {
   return (
-    <div className="w-full h-36 p-8 bg-blue-400 rounded-md flex flex-row gap-4 items-center text-white shadow-md">
+    <div className="w-full h-36 p-8 bg-background-secondary rounded-md flex flex-row gap-4 items-center text-white shadow-md">
       <div>
         {icon}
       </div>

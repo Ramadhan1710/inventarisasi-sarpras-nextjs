@@ -1,67 +1,89 @@
 import { createClient } from "@/utils/supabase/client";
 
-export type barang = {
-  barangId: string;
+export enum KondisiBarang {
+  baik = "baik",
+  rusak = "rusak",
+  tidakLayakPakai = "tidak layak pakai",
+  perluPerbaikan = "perlu perbaikan",
+}
+
+export enum StatusBarang {
+  tersedia = "tersedia",
+  dipinjam = "dipinjam",
+  dipakai = "perbaikan",
+}
+
+export type Barang = {
+  id: string;
   nama: string;
   stok: number;
   lokasi: string;
   deskripsi: string;
-  gambar: string;
-  kondisi: string;
-  status: string;
+  kondisi: KondisiBarang;
+  status: StatusBarang;
   created_at: string;
 }
+
 
 const supabase = createClient();
 
 const barangService = {
   async getDaftarBarang() {
     try {
-      const { data: barang, error } = await supabase
+      const { data, error } = await supabase
         .from('barang')
         .select('*');
       if (error) {
         throw error;
       }
-      return barang as barang[];
+      return data as Barang[];
     } catch (error) {
       console.error("Error fetching barang:", error);
-      return { data: null, error }; // or handle error as needed
+      return null;
     }
   },
 
-  async getBarang(barangId: any) {
+  async getBarang(barangId: string) {
     try {
-      const { data: barang, error } = await supabase
+      const { data, error } = await supabase
         .from('barang')
         .select('*')
-        .eq('id', barangId)
+        .eq('barangId', barangId)
         .single();
-      return barang as barang;
+      if (error) {
+        throw error;
+      }
+      return data as Barang;
     } catch (error) {
       console.error("Error fetching barang:", error);
-      return { data: null, error }; // or handle error as needed
+      return null;
     }
   },
 
-  async addBarang(barang: any) {
+  async addBarang(barang: Barang) {
     try {
-      await supabase.from('barang').insert(barang);
+      const { error } = await supabase.from('barang').insert(barang);
+      if (error) {
+        throw error;
+      }
     } catch (error) {
       console.error("Error adding barang:", error);
-      return { data: null, error }; // or handle error as needed
+      return null;
     }
   },
 
-  async updateBarang(barang: any, barangId: any) {
+  async updateBarang(barang: any, barangId: string) {
     try {
-      await supabase
+      const { error } = await supabase
         .from('barang')
         .update(barang)
         .eq('id', barangId);
+      if (error) {
+        throw error;
+      }
     } catch (error) {
       console.error("Error updating barang:", error);
-      return { data: null, error }; // or handle error as needed
+      return null;
     }
   },
 
@@ -78,4 +100,4 @@ const barangService = {
   }
 }
 
-export default barangService
+export default barangService;

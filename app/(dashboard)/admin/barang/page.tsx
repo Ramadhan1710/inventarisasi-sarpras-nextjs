@@ -1,5 +1,12 @@
-import React from 'react';
+'use client';
 
-export default function AdminPage() {
-  return <div>Admin Barang Page </div>;
+import React from 'react';
+import TabelBarangAdmin from './tabel-barang';
+
+export default function AdminBarangPage() {
+  return (
+    <div className="">
+      <TabelBarangAdmin />
+    </div>
+  );
 }

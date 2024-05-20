@@ -22,7 +22,7 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({ href, icon: Icon, label }) =>
 
   return (
     <Link href={href}>
-      <button className={`sidebar-link ${isActive ? 'bg-blue-400 text-white' : 'bg-transparent'} flex flex-row justify-start gap-4 items-center w-full h-10 px-4 rounded-md`}>
+      <button className={`sidebar-link ${isActive ? 'bg-background-secondary text-white' : 'bg-transparent'} flex flex-row justify-start gap-4 items-center w-full h-10 px-4 rounded-md`}>
         <Icon className="sidebar-icon" />
         <span className="sidebar-label">{label}</span>
       </button>

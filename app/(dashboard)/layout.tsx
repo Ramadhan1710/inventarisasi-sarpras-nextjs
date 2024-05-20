@@ -16,7 +16,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       navbar={{ width: 300, breakpoint: 'sm', collapsed: { mobile: !opened } }}
     >
       <AppShell.Header >
-        <div className="flex flex-row justify-between px-4 h-full bg-blue-400 items-center text-white">
+        <div className="flex flex-row justify-between px-4 h-full bg-background-secondary items-center text-white">
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" color="white"/>
           <Text>InventSchool</Text>
           <div className="flex flex-row">

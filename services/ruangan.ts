@@ -3,8 +3,6 @@ import { createClient } from "@/utils/supabase/client";
 export type ruangan = {
   ruanganId: string;
   nama: string;
-  deskripsi: string;
-  gambar: string;
   kondisi: string;
   status: string;
   created_at: string;

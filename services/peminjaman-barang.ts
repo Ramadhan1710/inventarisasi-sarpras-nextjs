@@ -1,15 +1,13 @@
 import { createClient } from "@/utils/supabase/client";
 
 export type peminjaman_barang = {
-  peminjaman_barangId: string;
   profile_id: string;
-  barang_id: string;
+  barang_id: any;
   jumlah: string;
   kepentingan: string;
-  tanggal_peminjaman: string;
-  tanggal_pengembalian: string;
+  tanggal_peminjaman: any;
+  tanggal_pengembalian: any;
   status: string;
-  created_at: string;
 }
 
 const supabase = createClient();
@@ -44,7 +42,7 @@ const peminjaman_barangService = {
     }
   },
 
-  async addPeminjamanBarang(peminjaman_barang: any) {
+  async addPeminjamanBarang(peminjaman_barang: peminjaman_barang) {
     try {
       await supabase.from('peminjaman_barang').insert(peminjaman_barang);
     } catch (error) {

@@ -41,7 +41,7 @@ const Sidebar: React.FC = () => {
         </>
       ) : (
         <>
-          <SidebarLink href="/" icon={FaHome} label="User Dashboard" />
+          <SidebarLink href="/" icon={FaHome} label="Halaman Beranda" />
           <SidebarLink href="/user/barang" icon={FaBox} label="Barang" />
           <SidebarLink href="/user/ruangan" icon={MdMeetingRoom} label="Ruangan" />
           <SidebarLink href="/user/peminjaman/barang" icon={FaClipboardList} label="Peminjaman Barang" />

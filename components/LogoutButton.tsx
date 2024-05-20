@@ -14,7 +14,7 @@ export function LogoutButton() {
         signOut();
         router.refresh();
       }}
-      className="w-full bg-blue-400 h-10 rounded-md flex justify-center items-center gap-2 text-white"
+      className="w-full bg-background-secondary h-10 rounded-md flex justify-center items-center gap-2 text-white"
     >
       <div className="flex items-center gap-2">
         <IconLogout style={{ width: rem(20), height: rem(20) }} />

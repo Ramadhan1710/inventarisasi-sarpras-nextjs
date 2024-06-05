@@ -33,7 +33,7 @@ export default function AuthButton() {
       <Menu width={200} shadow="md">
         <Menu.Target >
           <button className='flex flex-row gap-2 p-2 items-center justify-items-center '>
-            <Avatar size="md" src={image} radius={'xl'} />
+          <Avatar src={null} alt="no image here" color="indigo" />
             <div className='hidden md:block text-xl font-medium'>
               {profile && profile.nama_lengkap}
             </div>

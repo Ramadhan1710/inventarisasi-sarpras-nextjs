@@ -3,24 +3,17 @@ import { createClient } from "@/utils/supabase/client";
 export enum KondisiBarang {
   baik = "baik",
   rusak = "rusak",
-  tidakLayakPakai = "tidak layak pakai",
-  perluPerbaikan = "perlu perbaikan",
-}
-
-export enum StatusBarang {
-  tersedia = "tersedia",
-  dipinjam = "dipinjam",
-  dipakai = "perbaikan",
+  hilang = "hilang",
 }
 
 export type Barang = {
   id: string;
   nama: string;
-  stok: number;
+  jumlah: number;
   lokasi: string;
-  deskripsi: string;
-  kondisi: KondisiBarang;
-  status: StatusBarang;
+  kondisi_barang: KondisiBarang;
+  kode_barang: string;
+  tahun_masuk: string;
   created_at: string;
 }
 
@@ -48,12 +41,27 @@ const barangService = {
       const { data, error } = await supabase
         .from('barang')
         .select('*')
-        .eq('barangId', barangId)
+        .eq('id', barangId)
         .single();
       if (error) {
         throw error;
       }
       return data as Barang;
+    } catch (error) {
+      console.error("Error fetching barang:", error);
+      return null;
+    }
+  },
+
+  async getBarangAddedLastWeek() {
+    try {
+      const { data: barang_added_last_week, error } = await supabase
+        .from('barang_added_last_week')
+        .select('*');
+      if (error) {
+        throw error;
+      }
+      return barang_added_last_week;
     } catch (error) {
       console.error("Error fetching barang:", error);
       return null;

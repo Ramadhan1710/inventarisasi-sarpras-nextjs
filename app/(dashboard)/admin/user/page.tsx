@@ -1,9 +1,12 @@
+'use client'
+
 import React from 'react';
+import TabelUserAdmin from './tabel-user';
 
 export default function AdminUserPage() {
   return (
     <div className="">
-      <h1>Admin User Page</h1>
+      <TabelUserAdmin />
     </div>
   );
 }

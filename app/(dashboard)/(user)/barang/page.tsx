@@ -1,7 +1,15 @@
+'use client';
+
+import React from 'react';
+import TabelBarangAdmin from './tabel-barang';
+
 export default function BarangPage() {
   return (
     <div>
-      <h1>Barang Page</h1>
+      <div className='text-3xl font-bold mb-4 h-20 border p-4 flex items-center rounded-sm'>
+        <span className='text-background-secondary'>Daftar Barang</span>
+      </div>
+      <TabelBarangAdmin />
     </div>
   );
 }

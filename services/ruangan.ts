@@ -1,10 +1,14 @@
 import { createClient } from "@/utils/supabase/client";
 
+export enum kondisiRuangan {
+  baik = "baik",
+  rusak = "rusak",
+}
 export type ruangan = {
-  ruanganId: string;
+  id: string;
   nama: string;
-  kondisi: string;
-  status: string;
+  kondisi_ruangan: kondisiRuangan;
+  tahun_masuk: string;
   created_at: string;
 }
 
@@ -13,16 +17,29 @@ const supabase = createClient();
 const ruanganService = {
   async getDaftarRuangan() {
     try {
-      const { data: ruangan, error } = await supabase
+      const { data, error } = await supabase
         .from('ruangan')
         .select('*');
+      return data as ruangan[];
+    } catch (error) {
+      console.error("Error fetching ruangan:", error);
+      // or handle error as needed
+    }
+  },
+
+  async getRuanganAddedLastWeek() {
+    try {
+      const { data: ruang_added_last_week, error } = await supabase
+        .from('ruang_added_last_week')
+        .select('*')
+
       if (error) {
         throw error;
       }
-      return ruangan as ruangan[];
+      return ruang_added_last_week;
     } catch (error) {
-      console.error("Error fetching ruangan:", error);
-      return { data: null, error }; // or handle error as needed
+      console.error("Error fetching barang:", error);
+      return null;
     }
   },
 

@@ -1,0 +1,18 @@
+.piechart{
+  background-color: var(--mantine-color-white);
+  border-radius: var(--mantine-radius-md);
+  box-shadow: var(--mantine-shadow-md);
+  padding: var(--mantine-spacing-md);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--mantine-spacing-md);
+  align-items: start;
+}
+
+.title {
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--mantine-color-gray-7);
+}

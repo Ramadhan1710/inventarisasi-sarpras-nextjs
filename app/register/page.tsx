@@ -6,12 +6,15 @@ import {
   Title,
   Text,
   Container,
+  TextInput,
+  PasswordInput,
 } from '@mantine/core';
 import classes from "@/public/css/authentication.module.css";
 import { SubmitButton } from "@/components/submit-button";
 import { createClient } from "@/utils/supabase/client";
 import { redirect, useRouter } from "next/navigation";
 import { useState } from "react";
+import { notifications } from "@mantine/notifications";
 
 export default function Register({
   searchParams,
@@ -60,25 +63,46 @@ export default function Register({
     const fullName = formData.get("fullName") as string;
     const supabase = createClient();
 
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error: error } = await supabase.auth.signUp({
       email,
       password,
     });
 
     if (error) {
-      return redirect(`/register?message=Could not authenticate user: ${error.message}`);
+      notifications.show({
+        title: 'Registration failed',
+        message: `Failed to register: ${error.message}`,
+        autoClose: 5000,
+        withCloseButton: true,
+        color: 'red',
+      });
+      return;
     }
 
-    const userId = data.user?.id;
-
     const { error: profileError } = await supabase.from('profile').insert(
-      { user_id: userId, nama_lengkap: fullName }
+      { nama_lengkap: fullName , user_id: data?.user?.id },
     )
 
     if (profileError) {
-      return redirect(`/register?message=Could not authenticate user: ${profileError.message}`);
+      notifications.show({
+        title: 'Registration failed',
+        message: `Failed to register: ${profileError.message}`,
+        autoClose: 5000,
+        withCloseButton: true,
+        color: 'red',
+      });
+      return;
     }
 
+    if (data) {
+      notifications.show({
+        title: 'Registration successful',
+        message: 'You have successfully registered.',
+        autoClose: 3000,
+        withCloseButton: true,
+        color: 'green',
+      });
+    }
     router.refresh();
     router.push('/');
   };
@@ -98,7 +122,8 @@ export default function Register({
         </Text>
         <Paper withBorder shadow="md" p={30} mt={30} radius="md">
           <form className="animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground">
-            <label htmlFor="fullName" className="text-md">
+            <TextInput label="Nama Lengkap" placeholder="Nama Lengkap" required name='fullName' />
+            {/* <label htmlFor="fullName" className="text-md">
               Nama Lengkap
             </label>
             <input
@@ -107,8 +132,9 @@ export default function Register({
               name="fullName"
               placeholder="Nama Lengkap"
               required
-            />
-            <label className="text-md" htmlFor="email">
+            /> */}
+            <TextInput label="Email" placeholder="you@example.com" required name='email' onChange={handleEmailChange} />
+            {/* <label className="text-md" htmlFor="email">
               Email
             </label>
             <input
@@ -117,19 +143,20 @@ export default function Register({
               placeholder="you@example.com"
               onChange={handleEmailChange}
               required
-            />
+            /> */}
             {isEmailError && <Text color="red" size="sm">{emailError}</Text>}
-            <label className="text-md" htmlFor="password">
+            {/* <label className="text-md" htmlFor="password">
               Password
-            </label>
-            <input
+            </label> */}
+            <PasswordInput label="Password" placeholder="••••••••" required name='password' onChange={handlePasswordChange} />
+            {/* <input
               className="rounded-md px-4 py-2 bg-inherit border mb-6"
               type="password"
               name="password"
               placeholder="••••••••"
               onChange={handlePasswordChange}
               required
-            />
+            /> */}
             {isPasswordError && <Text color="red" size="sm">{passwordError}</Text>}
             <SubmitButton
               className="bg-background-primary w-full font-semibold text-white rounded-md mt-4 px-4 py-2 text-foreground mb-2"
@@ -141,7 +168,7 @@ export default function Register({
             {searchParams?.message && (
               <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">
                 {searchParams.message}
-              </p> 
+              </p>
             )}
           </form>
         </Paper>

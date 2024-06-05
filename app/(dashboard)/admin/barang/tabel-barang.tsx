@@ -18,7 +18,7 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { ModalsProvider, modals } from '@mantine/modals';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconTrash, IconDownload } from '@tabler/icons-react';
 import {
   QueryClient,
   QueryClientProvider,
@@ -26,7 +26,9 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import barangService, { Barang, KondisiBarang, StatusBarang } from '@/services/barang';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import barangService, { Barang, KondisiBarang } from '@/services/barang';
 
 const TabelBarangAdmin = () => {
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
@@ -47,17 +49,30 @@ const TabelBarangAdmin = () => {
         },
       },
       {
-        accessorKey: 'stok',
-        header: 'Stok',
+        accessorKey: 'kode_barang',
+        header: 'Kode Barang',
+        mantineEditTextInputProps: {
+          required: true,
+          error: validationErrors?.kode_barang,
+          onFocus: () =>
+            setValidationErrors({
+              ...validationErrors,
+              kode_barang: undefined,
+            }),
+        },
+      },
+      {
+        accessorKey: 'jumlah',
+        header: 'Jumlah Barang',
         size: 80,
         mantineEditTextInputProps: {
           type: 'number',
           required: true,
-          error: validationErrors?.stok,
+          error: validationErrors?.jumlah,
           onFocus: () =>
             setValidationErrors({
               ...validationErrors,
-              stok: undefined,
+              jumlah: undefined,
             }),
         },
       },
@@ -75,29 +90,17 @@ const TabelBarangAdmin = () => {
         },
       },
       {
-        accessorKey: 'deskripsi',
-        header: 'Deskripsi',
-        mantineEditTextInputProps: {
-          error: validationErrors?.deskripsi,
-          onFocus: () =>
-            setValidationErrors({
-              ...validationErrors,
-              deskripsi: undefined,
-            }),
-        },
-      },
-      {
-        accessorKey: 'kondisi',
-        header: 'Kondisi',
+        accessorKey: 'kondisi_barang',
+        header: 'Kondisi Barang',
         editVariant: 'select',
         mantineEditSelectProps: {
           data: Object.values(KondisiBarang),
           required: true,
-          error: validationErrors?.kondisi,
+          error: validationErrors?.kondisi_barang,
           onFocus: () =>
             setValidationErrors({
               ...validationErrors,
-              kondisi: undefined,
+              kondisi_barang: undefined,
             }),
         },
         //buat warna untuk kondisi
@@ -108,9 +111,7 @@ const TabelBarangAdmin = () => {
                 backgroundColor:
                   cell.getValue() === 'baik'
                     ? '#40C057'
-                    : cell.getValue() === 'perlu perbaikan'
-                      ? '#FD7E14'
-                      : cell.getValue() === 'rusak' ? '#FA5252' : cell.getValue() === 'tidak layak pakai' ? '#868E96' : '#228BE6',
+                    : cell.getValue() === 'rusak' ? '#FA5252' : cell.getValue() === 'tidak layak pakai' ? '#868E96' : '#228BE6',
                 color: 'white',
                 padding: '5px',
                 width: '150px',
@@ -125,23 +126,23 @@ const TabelBarangAdmin = () => {
 
       },
       {
-        accessorKey: 'status',
-        header: 'Status',
-        editVariant: 'select',
-        mantineEditSelectProps: {
-          data: Object.values(StatusBarang),
+        accessorKey: 'tahun_masuk',
+        header: 'Tahun Masuk',
+        mantineEditTextInputProps: {
+          type: 'date',
           required: true,
-          error: validationErrors?.status,
+          error: validationErrors?.tahun_masuk,
           onFocus: () =>
             setValidationErrors({
               ...validationErrors,
-              status: undefined,
+              tahun_masuk: undefined,
             }),
         }
       },
     ],
     [validationErrors],
   );
+
 
 
   const { mutateAsync: createBarang } = useCreateBarang();
@@ -206,6 +207,31 @@ const TabelBarangAdmin = () => {
     });
   };
 
+  const handleExportRows = (rows: MRT_Row<Barang>[]) => {
+    const doc = new jsPDF();
+
+    // Add the title
+    const title = 'Daftar Barang';
+    doc.setFontSize(18);
+    doc.text(title, 14, 22); // Positioning the title
+
+    // Add some spacing before the table
+    const startY = 30;
+
+    const tableHeaders = columns.map((c) => c.header);
+    const tableData = rows.map((row) =>
+      columns.map((column) => row.original[column.accessorKey as keyof Barang])
+    );
+
+    autoTable(doc, {
+      head: [tableHeaders],
+      body: tableData,
+      startY, // Start the table below the title
+    });
+
+    doc.save('barang-data.pdf');
+  };
+
   const table = useMantineReactTable({
     columns,
     data: fetchedBarang,
@@ -219,11 +245,11 @@ const TabelBarangAdmin = () => {
         children: 'Error loading data',
       }
       : undefined,
-    onCreatingRowCancel: () => setValidationErrors({}),
-    onCreatingRowSave: handleCreateBarang,
-    onEditingRowCancel: () => setValidationErrors({}),
-    onEditingRowSave: handleSaveBarang,
-    renderCreateRowModalContent: ({ table, row, internalEditComponents }) => (
+      onCreatingRowCancel: () => setValidationErrors({}),
+      onCreatingRowSave: handleCreateBarang,
+      onEditingRowCancel: () => setValidationErrors({}),
+      onEditingRowSave: handleSaveBarang,
+      renderCreateRowModalContent: ({ table, row, internalEditComponents }) => (
       <Stack>
         <Title order={3}>Create New Item</Title>
         {internalEditComponents}
@@ -256,7 +282,30 @@ const TabelBarangAdmin = () => {
       </Flex>
     ),
     renderTopToolbarCustomActions: ({ table }) => (
-      <Button onClick={() => table.setCreatingRow(true)}>Create New Item</Button>
+      <Box
+        style={{
+          display: 'flex',
+          gap: '16px',
+          padding: '8px',
+          flexWrap: 'wrap',
+        }}
+      >
+        <Button onClick={() => table.setCreatingRow(true)}>
+          Tambah barang
+        </Button>
+        <Button
+          disabled={table.getPrePaginationRowModel().rows.length === 0}
+          //export all rows, including from the next page, (still respects filtering and sorting)
+          onClick={() =>
+            handleExportRows(table.getPrePaginationRowModel().rows)
+          }
+          variant="filled"
+          color="red"
+        >
+          Unduh PDF
+        </Button>
+      </Box>
+
     ),
     state: {
       isLoading: isLoadingBarang,
@@ -327,8 +376,7 @@ function useUpdateBarang() {
         throw new Error('ID is required to update barang');
       }
       await barangService.updateBarang(barang, barang.id);
-    },
-    onMutate: (newBarangInfo: Barang) => {
+    }, onMutate: (newBarangInfo: Barang) => {
       queryClient.setQueryData(
         ['barang'],
         (prevBarang: any) =>
@@ -393,10 +441,11 @@ export default TabelBarangAdminWithProviders;
 function validateBarang(barang: Barang) {
   return {
     nama: !validateRequired(barang.nama) ? 'Nama Barang is Required' : '',
-    stok: !validateRequired(barang.stok) ? 'Stok is Required' : '',
+    jumlah: !validateRequired(barang.jumlah) ? 'Jumlah Barang is Required' : '',
     lokasi: !validateRequired(barang.lokasi) ? 'Lokasi is Required' : '',
-    kondisi: !validateRequired(barang.kondisi) ? 'Kondisi is Required' : '',
-    status: !validateRequired(barang.status) ? 'Status is Required' : '',
+    kondisi_barang: !validateRequired(barang.kondisi_barang) ? 'Kondisi Barang is Required' : '',
+    kode_barang: !validateRequired(barang.kode_barang) ? 'Kode Barang is Required' : '',
+    tahun_masuk: !validateRequired(barang.tahun_masuk) ? 'Tahun Masuk is Required' : '',
   };
 }
 

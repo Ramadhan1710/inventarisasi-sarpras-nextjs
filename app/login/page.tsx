@@ -14,9 +14,12 @@ import {
   Container,
   Group,
   Button,
+  rem,
 } from '@mantine/core';
 import classes from "@/public/css/authentication.module.css";
 import { SubmitButton } from "./submit-button";
+import { notifications } from "@mantine/notifications";
+import { IconCheck } from "@tabler/icons-react";
 
 export default function LoginPage({ searchParams }: { searchParams: { message: string } }) {
   const router = useRouter();
@@ -25,6 +28,7 @@ export default function LoginPage({ searchParams }: { searchParams: { message: s
   const [isEmailError, setIsEmailError] = useState(false);
   const [isPasswordError, setIsPasswordError] = useState(false);
   const [loginError, setLoginError] = useState('');
+
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputEmail = event.currentTarget.value;
@@ -61,18 +65,34 @@ export default function LoginPage({ searchParams }: { searchParams: { message: s
     const password = formData.get("password") as string;
     const supabase = createClient();
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
-      setLoginError('Could not authenticate user');
+      // Jika login gagal, tampilkan notifikasi kesalahan
+      notifications.show({
+        title: 'Login failed',
+        message: 'Failed to login. Please check your email and password and try again.',
+        autoClose: 5000,
+        withCloseButton: true,
+        color: 'red',
+      });
       return;
     }
 
-    router.push('/');
-    router.refresh();
+    if (data) {
+      notifications.show({
+        title: 'Login successful',
+        message: 'You have successfully logged in.',
+        autoClose: 3000,
+        withCloseButton: true,
+        color: 'green',
+      });
+      router.push('/');
+      router.refresh();
+    }
   };
 
   return (
@@ -91,28 +111,22 @@ export default function LoginPage({ searchParams }: { searchParams: { message: s
           <form
             className="animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground"
           >
-            <label className="text-md" htmlFor="email">
+            {/* <label className="text-md" htmlFor="email">
               Email
-            </label>
-            <input
+            </label> */}
+            <TextInput label="Email" placeholder="you@example.com" required name='email' onChange={handleEmailChange} />
+            {/* <input
               className="rounded-md px-4 py-2 bg-inherit border"
               name="email"
               placeholder="you@example.com"
               onChange={handleEmailChange}
               required
-            />
+            /> */}
             {isEmailError && <Text color="red" size="sm">{emailError}</Text>}
-            <label className="text-md" htmlFor="password">
+            {/* <label className="text-md" htmlFor="password">
               Password
-            </label>
-            <input
-              className="rounded-md px-4 py-2 bg-inherit border"
-              type="password"
-              name="password"
-              placeholder="••••••••"
-              onChange={handlePasswordChange}
-              required
-            />
+            </label> */}
+            <PasswordInput label="Password" placeholder="••••••••" required name='password' onChange={handlePasswordChange} />
             {isPasswordError && <Text color="red" size="sm">{passwordError}</Text>}
             <SubmitButton
               className="bg-background-primary w-full font-semibold text-white rounded-md mt-4 px-4 py-2 text-foreground mb-2"

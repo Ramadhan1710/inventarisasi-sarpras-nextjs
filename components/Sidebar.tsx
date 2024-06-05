@@ -2,9 +2,24 @@
 
 // /components/Sidebar.tsx
 import React, { useEffect, useState } from 'react';
-import { FaHome, FaUser, FaBox, FaClipboardList } from 'react-icons/fa';
-import { MdMeetingRoom, MdOutlineAssignment, MdOutlineAssignmentReturn } from 'react-icons/md';
+import { FaHome } from 'react-icons/fa';
+import { FiBox } from "react-icons/fi";
+import { LuClipboardList } from "react-icons/lu";
+import { AiOutlineProduct } from "react-icons/ai";
+import { MdOutlineMeetingRoom } from "react-icons/md";
+import { RxDashboard } from "react-icons/rx";
 import SidebarLink from './SidebarLink';
+import {
+  IconArrowUpRight,
+  IconArrowDownRight,
+  IconBox,
+  IconBuilding,
+  IconWand,
+  IconArrowBack,
+  IconClipboardList,
+  IconHome,
+  IconDashboard,
+} from '@tabler/icons-react';
 import { getCurrentUser, getProfile } from '@/utils/supabase/auth';
 
 const Sidebar: React.FC = () => {
@@ -24,30 +39,23 @@ const Sidebar: React.FC = () => {
       }
     };
     fetchUser();
-  }, []); 
+  }, []);
 
   return (
     <div className="flex flex-col gap-2">
       {isAdmin ? (
         <>
-          <SidebarLink href="/" icon={FaHome} label="Dashboard" />
-          <SidebarLink href="/admin/user" icon={FaUser} label="Daftar User" />
-          <SidebarLink href="/admin/barang" icon={FaBox} label="Daftar Barang" />
-          <SidebarLink href="/admin/ruang" icon={MdMeetingRoom} label="Daftar Ruangan" />
-          <SidebarLink href="/admin/peminjaman/barang" icon={FaClipboardList} label="Peminjaman Barang" />
-          <SidebarLink href="/admin/peminjaman/ruangan" icon={MdOutlineAssignment} label="Peminjaman Ruangan" />
-          <SidebarLink href="/admin/pengembalian/barang" icon={MdOutlineAssignmentReturn} label="Pengembalian Barang" />
-          <SidebarLink href="/admin/pengembalian/ruangan" icon={MdOutlineAssignmentReturn} label="Pengembalian Ruangan" />
+          <SidebarLink href="/" icon={IconDashboard} label="Dashboard" />
+          <SidebarLink href="/admin/barang" icon={IconBox} label="Daftar Barang" />
+          <SidebarLink href="/admin/ruangan" icon={IconBuilding} label="Daftar Ruangan" />
+          <SidebarLink href="/admin/pengajuan" icon={IconClipboardList} label="Daftar Pengajuan" />
         </>
       ) : (
         <>
-          <SidebarLink href="/" icon={FaHome} label="Halaman Beranda" />
-          <SidebarLink href="/user/barang" icon={FaBox} label="Barang" />
-          <SidebarLink href="/user/ruangan" icon={MdMeetingRoom} label="Ruangan" />
-          <SidebarLink href="/user/peminjaman/barang" icon={FaClipboardList} label="Peminjaman Barang" />
-          <SidebarLink href="/user/peminjaman/ruangan" icon={MdOutlineAssignment} label="Peminjaman Ruangan" />
-          <SidebarLink href="/user/pengembalian/barang" icon={MdOutlineAssignmentReturn} label="Pengembalian Barang" />
-          <SidebarLink href="/user/pengembalian/ruangan" icon={MdOutlineAssignmentReturn} label="Pengembalian Ruangan" />
+          <SidebarLink href="/" icon={IconHome} label="Beranda" />
+          <SidebarLink href="/pengajuan" icon={IconClipboardList} label="Pengajuan" />
+          <SidebarLink href="/barang" icon={IconBox} label="Daftar Barang" />
+          <SidebarLink href="/ruangan" icon={IconBuilding} label="Daftar Ruangan" />
         </>
       )}
     </div>

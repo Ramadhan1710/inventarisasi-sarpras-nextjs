@@ -1,55 +1,65 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { peminjaman_barang } from '@/services/peminjaman-barang';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser, getProfile } from '@/utils/supabase/auth';
 import { TextInput, Select, Button } from '@mantine/core';
-import { DateTimePicker } from '@mantine/dates';
+import { useDisclosure } from '@mantine/hooks';
+import pengajuanService, { StatusPengajuan, JenisInventaris } from '@/services/pengajuan';
+import Banner from './banner';
+import { notifications } from '@mantine/notifications';
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
-  const [barang, setBarang] = useState([]);
-  const [peminjamanBarang, setPeminjamanBarang] = useState([] as peminjaman_barang[]);
-
-  const [peminjamanBarangBaru, setPeminjamanBarangBaru] = useState<peminjaman_barang>({
+  const [ajukanPengajuan, setAjukanPengajuan] = useState(false);
+  const [pengajuanBaru, setPengajuanBaru] = useState<any>({
     profile_id: '',
-    barang_id: '',
-    jumlah: '',
-    kepentingan: '',
-    tanggal_peminjaman: '',
-    tanggal_pengembalian: '',
-    status: ''
+    jenis_inventaris: '',
+    nama_inventaris: '',
+    keperluan: '',
+    deskripsi: '',
+    status_pengajuan: StatusPengajuan.diproses,
   });
+  const [errors, setErrors] = useState<any>({});
+  const [opened, { close, open }] = useDisclosure(false);
 
   const router = useRouter();
 
-  async function handleCreatePeminjamanBarang() {
-    const newPeminjamanBarang = {
-      ...peminjamanBarangBaru,
-    };
+  async function handleCreatePengajuan() {
+    const newPengajuan = { ...pengajuanBaru };
 
-    console.log('Sending data:', newPeminjamanBarang); // log data yang dikirim
-
-    const response = await fetch('/api/peminjaman/barang', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newPeminjamanBarang),
-
-    });
-
-    const result = await response.text();
-    console.log('Server response:', result);
-
-    if (response.ok) {
-      console.log("Peminjaman barang berhasil!");
-      // router.push('/user/peminjaman/barang');
-    } else {
-      console.error("Gagal melakukan peminjaman barang.");
+    const validationErrors = validateForm(newPengajuan);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
+
+    console.log('Sending data:', newPengajuan);
+
+    await pengajuanService.addPengajuan(newPengajuan);
+
+    notifications.show({
+      color: 'green',
+      title: 'Pengajuan Berhasil',
+      message: 'Dimohon menunggu proses pengajuan.',
+    })
+
+    setAjukanPengajuan(false);
+
+    console.log("Pengajuan berhasil dibuat!");
+    // Optionally, navigate to another page or update the state to reflect the new pengajuan
   }
+
+  const validateForm = (pengajuan: any) => {
+    const newErrors: any = {};
+
+    if (!pengajuan.jenis_inventaris) newErrors.jenis_inventaris = 'Jenis Inventaris is required';
+    if (!pengajuan.nama_inventaris) newErrors.nama_inventaris = 'Nama Inventaris is required';
+    if (!pengajuan.keperluan) newErrors.keperluan = 'Keperluan is required';
+    if (!pengajuan.deskripsi) newErrors.deskripsi = 'Deskripsi is required';
+
+    return newErrors;
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -61,83 +71,77 @@ export default function Dashboard() {
           return;
         }
         setUser(profile);
-        setPeminjamanBarangBaru(prevState => ({
+        setPengajuanBaru((prevState: any) => ({
           ...prevState,
-          profile_id: profile.id
+          profile_id: profile.id,
         }));
       }
-    }
+    };
     fetchUser();
-  }, []);
-
-  useEffect(() => {
-    const fetchBarang = async () => {
-      const data = await fetch('/api/barang').then((res) => res.json());
-      setBarang(data);
-    }
-    fetchBarang();
-  }, []);
-
-  useEffect(() => {
-    const fetchPeminjamanBarang = async () => {
-      const data = await fetch('/api/peminjaman/barang').then((res) => res.json());
-      setPeminjamanBarang(data);
-      console.log(data);
-    }
-    fetchPeminjamanBarang();
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setPeminjamanBarangBaru({
-      ...peminjamanBarangBaru,
+    setPengajuanBaru({
+      ...pengajuanBaru,
       [name]: value,
     });
   };
 
   return (
     <div>
-      <h1>Form Pengajuan Peminjaman Barang</h1>
-      <form onSubmit={(e) => { e.preventDefault(); handleCreatePeminjamanBarang(); }}>
-        <Select
-          label="Pilih Barang"
-          name="barang_id"
-          value={peminjamanBarangBaru.barang_id}
-          onChange={(value) => setPeminjamanBarangBaru({ ...peminjamanBarangBaru, barang_id: value })}
-          data={barang.map((item: any) => ({ value: item.id, label: item.nama }))}
-        />
-        <TextInput
-          label="Jumlah"
-          name="jumlah"
-          value={peminjamanBarangBaru.jumlah}
-          onChange={handleChange}
-        />
-        <TextInput
-          label="Kepentingan"
-          name="kepentingan"
-          value={peminjamanBarangBaru.kepentingan}
-          onChange={handleChange}
-        />
-        <DateTimePicker
-          label="Tanggal Peminjaman"
-          placeholder="Pilih Tanggal dan Waktu"
-          value={peminjamanBarangBaru.tanggal_peminjaman ? new Date(peminjamanBarangBaru.tanggal_peminjaman) : null}
-          onChange={(date) => setPeminjamanBarangBaru({ ...peminjamanBarangBaru, tanggal_peminjaman: date?.toISOString() || '' })}
-        />
-        <DateTimePicker
-          label="Tanggal Pengembalian"
-          placeholder="Pilih Tanggal dan Waktu"
-          value={peminjamanBarangBaru.tanggal_pengembalian ? new Date(peminjamanBarangBaru.tanggal_pengembalian) : null}
-          onChange={(date) => setPeminjamanBarangBaru({ ...peminjamanBarangBaru, tanggal_pengembalian: date?.toISOString() || '' })}
-        />
-        <TextInput
-          label="Status"
-          name="status"
-          value={peminjamanBarangBaru.status}
-          onChange={handleChange}
-        />
-        <Button type="submit">Ajukan Peminjaman</Button>
-      </form>
+      {!ajukanPengajuan ? (
+        <Banner setAjukanPengajuan={setAjukanPengajuan} />
+      ) : (
+        <div>
+          {ajukanPengajuan && (
+            <div className="flex flex-col gap-4 mb-10">
+              <div className='text-3xl font-bold h-20 border p-4 flex items-center rounded-sm'>
+                <h1 className='text-3xl font-sans font-semibold'>Form Pengajuan Sarpras</h1>
+              </div>
+              <form onSubmit={(e) => { e.preventDefault(); handleCreatePengajuan(); }} className="flex flex-col gap-2">
+                <Select
+                  label="Jenis Inventaris"
+                  name="jenis_inventaris"
+                  placeholder='Pilih Jenis Inventaris'
+                  value={pengajuanBaru.jenis_inventaris}
+                  onChange={(value) => setPengajuanBaru({ ...pengajuanBaru, jenis_inventaris: value })}
+                  data={Object.values(JenisInventaris).map((jenis) => ({ value: jenis, label: jenis }))}
+                  error={errors.jenis_inventaris}
+                />
+                <TextInput
+                  label="Nama Inventaris"
+                  name="nama_inventaris"
+                  placeholder='Nama Inventaris'
+                  value={pengajuanBaru.nama_inventaris}
+                  onChange={handleChange}
+                  error={errors.nama_inventaris}
+                />
+                <TextInput
+                  label="Keperluan"
+                  name="keperluan"
+                  placeholder='Keperluan'
+                  value={pengajuanBaru.keperluan}
+                  onChange={handleChange}
+                  error={errors.keperluan}
+                />
+                <TextInput
+                  label="Deskripsi"
+                  name="deskripsi"
+                  placeholder='Deskripsi'
+                  value={pengajuanBaru.deskripsi}
+                  onChange={handleChange}
+                  error={errors.deskripsi}
+                />
+                <div className='flex flex-row gap-4 justify-end'>
+                  <Button onClick={() => setAjukanPengajuan(false)} color='red'>Batal</Button>
+                  <Button type="submit">Ajukan</Button>
+                </div>
+              </form>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

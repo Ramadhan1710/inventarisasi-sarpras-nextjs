@@ -1,9 +1,12 @@
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import '@mantine/core/styles.css';
-import '@mantine/dates/styles.css'; //if using mantine date picker features
-import 'mantine-react-table/styles.css'; //import MRT styles
+import '@mantine/dates/styles.css'; 
+import 'mantine-react-table/styles.css';
+import '@mantine/notifications/styles.css';
+import '@mantine/charts/styles.css';
 import { createTheme, MantineProvider } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -24,6 +27,7 @@ export default function RootLayout({
     <html lang="en" className={GeistSans.className}>
       <body>
         <MantineProvider>
+          <Notifications />
           {children}
         </MantineProvider>
       </body>

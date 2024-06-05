@@ -1,0 +1,28 @@
+.card{
+  background-color: var(--mantine-color-blue-filled);
+  color: var(--mantine-color-white);
+  border-radius: var(--mantine-radius-md);
+  box-shadow: var(--mantine-shadow-lg);
+}
+
+.value {
+  font-size: rem(24px);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.diff {
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  /* color: ; */
+}
+
+.icon {
+  color: var(--mantine-color-white);
+}
+
+.title {
+  font-weight: 700;
+  text-transform: uppercase;
+}

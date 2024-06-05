@@ -97,7 +97,7 @@ export default function Dashboard() {
           {ajukanPengajuan && (
             <div className="flex flex-col gap-4 mb-10">
               <div className='text-3xl font-bold h-20 border p-4 flex items-center rounded-sm'>
-                <h1 className='text-3xl font-sans font-semibold'>Form Pengajuan Sarpras</h1>
+                <h1 className='text-3xl font-semibold'>Form Pengajuan Sarpras</h1>
               </div>
               <form onSubmit={(e) => { e.preventDefault(); handleCreatePengajuan(); }} className="flex flex-col gap-2">
                 <Select

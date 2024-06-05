@@ -26,7 +26,7 @@ export default function AdminPage() {
         <Grid gutter="md">
           <Grid.Col>
             <div className={classes.piechart}>
-              <span className={classes.title}>Grafik Jumlah Pengajuan Sarpras</span>
+              <span className={classes.title}>Grafik Jumlah Pengajuan Sarpras Sebulan Terakhir</span>
               <JumlahPengajuanPerminggu />
             </div>
           </Grid.Col>
@@ -35,19 +35,18 @@ export default function AdminPage() {
               <span className={classes.title}>Grafik Kondisi Barang</span>
               <div className='flex flex-row gap-4'>
                 <KondisiBarangChart />
-                {/* warna kondisi */}
                 <div className='flex flex-col gap-2 justify-center'>
-                  <div className='flex gap-2 flex-row'>
-                    <div className='w-2 rounded-full bg-red-500'></div>
-                    <span>Rusak</span>
-                  </div>
-                  <div className='flex gap-2 flex-row'>
-                    <div className='w-2 rounded-full bg-amber-600'></div>
-                    <span>Hilang</span>
-                  </div>
                   <div className='flex gap-2 flex-row'>
                     <div className='w-2 rounded-full bg-blue-600'></div>
                     <span>Baik</span>
+                  </div>
+                  <div className='flex gap-2 flex-row'>
+                    <div className='w-2 rounded-full bg-amber-400'></div>
+                    <span>Hilang</span>
+                  </div>
+                  <div className='flex gap-2 flex-row'>
+                    <div className='w-2 rounded-full bg-red-500'></div>
+                    <span>Rusak</span>
                   </div>
                 </div>
               </div>
@@ -58,15 +57,14 @@ export default function AdminPage() {
               <span className={classes.title}>Grafik Kondisi Ruangan</span>
               <div className='flex flex-row gap-4'>
                 <KondisiRuanganChart />
-                {/* warna kondisi */}
                 <div className='flex flex-col gap-2 justify-center'>
-                  <div className='flex gap-2 flex-row'>
-                    <div className='w-2 rounded-full bg-red-500'></div>
-                    <span>Rusak</span>
-                  </div>
                   <div className='flex gap-2 flex-row'>
                     <div className='w-2 rounded-full bg-blue-600'></div>
                     <span>Baik</span>
+                  </div>
+                  <div className='flex gap-2 flex-row'>
+                    <div className='w-2 rounded-full bg-red-500'></div>
+                    <span>Rusak</span>
                   </div>
                 </div>
               </div>

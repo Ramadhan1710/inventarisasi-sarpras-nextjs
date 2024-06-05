@@ -16,17 +16,6 @@ export default function AdminCard({ title, subtitle, icon }: Props) {
         <h2 className="font-bold">{title}</h2>
         <p>{subtitle}</p>
       </div>
-      {/* <Grid>
-        <div className="flex flex-row justify-between">
-          <Grid.Col span={4}>
-            {icon}
-          </Grid.Col>
-          <Grid.Col span={8}>
-            <h2 className="font-bold">{title}</h2>
-            <p>{subtitle}</p>
-          </Grid.Col>
-        </div>
-      </Grid> */}
     </div>
   )
 }

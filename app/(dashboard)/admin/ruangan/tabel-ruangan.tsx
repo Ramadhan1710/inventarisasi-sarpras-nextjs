@@ -17,6 +17,8 @@ import {
   Title,
   Tooltip,
 } from '@mantine/core';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { ModalsProvider, modals } from '@mantine/modals';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import {
@@ -167,6 +169,31 @@ const TabelRuanganAdmin = () => {
     });
   };
 
+  const handleExportRows = (rows: MRT_Row<ruangan>[]) => {
+    const doc = new jsPDF();
+
+    // Add the title
+    const title = 'Daftar Ruangan';
+    doc.setFontSize(18);
+    doc.text(title, 14, 22); // Positioning the title
+
+    // Add some spacing before the table
+    const startY = 30;
+
+    const tableHeaders = columns.map((c) => c.header);
+    const tableData = rows.map((row) =>
+      columns.map((column) => row.original[column.accessorKey as keyof ruangan])
+    );
+
+    autoTable(doc, {
+      head: [tableHeaders],
+      body: tableData,
+      startY, // Start the table below the title
+    });
+
+    doc.save('Data-ruangan.pdf');
+  };
+
   const table = useMantineReactTable({
     columns,
     data: fetchedRuangan,
@@ -217,7 +244,27 @@ const TabelRuanganAdmin = () => {
       </Flex>
     ),
     renderTopToolbarCustomActions: ({ table }) => (
-      <Button onClick={() => table.setCreatingRow(true)}>Create New Room</Button>
+      <Box
+        style={{
+          display: 'flex',
+          gap: '16px',
+          padding: '8px',
+          flexWrap: 'wrap',
+        }}
+      >
+        <Button onClick={() => table.setCreatingRow(true)}>Create New Room</Button>
+        <Button
+          disabled={table.getPrePaginationRowModel().rows.length === 0}
+          //export all rows, including from the next page, (still respects filtering and sorting)
+          onClick={() =>
+            handleExportRows(table.getPrePaginationRowModel().rows)
+          }
+          variant="filled"
+          color="red"
+        >
+          Unduh PDF
+        </Button>
+      </Box>
     ),
     state: {
       isLoading: isLoadingRuangan,

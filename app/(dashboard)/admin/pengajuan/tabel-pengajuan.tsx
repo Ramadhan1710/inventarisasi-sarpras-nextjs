@@ -8,6 +8,7 @@ import {
 } from 'mantine-react-table';
 import {
   ActionIcon,
+  Box,
   Button,
   Flex,
   Stack,
@@ -24,6 +25,8 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import pengajuanService, { StatusPengajuan, Pengajuan } from '@/services/pengajuan';
 import profileService from '@/services/user';
 
@@ -50,6 +53,67 @@ const TabelPengajuanAdmin = () => {
     isFetching: isFetchingPengajuan,
     isLoading: isLoadingPengajuan,
   } = useGetPengajuan();
+
+  const columns = useMemo<MRT_ColumnDef<Pengajuan>[]>(
+    () => [
+      {
+        accessorKey: 'profile_id',
+        header: 'Profile Name',
+        enableEditing: false,
+        Cell: ({ cell }) => {
+          const profile = profiles.find(p => p.id === cell.getValue<string>());
+          return profile ? profile.nama_lengkap : 'Unknown';
+        },
+        size: 150,
+      },
+      {
+        accessorKey: 'jenis_inventaris',
+        header: 'Jenis Inventaris',
+        enableEditing: false,
+        size: 150,
+      },
+      {
+        accessorKey: 'nama_inventaris',
+        header: 'Nama Inventaris',
+        enableEditing: false,
+        size: 150,
+      },
+      {
+        accessorKey: 'keperluan',
+        header: 'Keperluan',
+        enableEditing: false,
+        size: 200,
+      },
+      {
+        accessorKey: 'deskripsi',
+        header: 'Deskripsi',
+        enableEditing: false,
+        size: 250,
+      },
+      {
+        accessorKey: 'status_pengajuan',
+        header: 'Status Pengajuan',
+        editVariant: 'select',
+        mantineEditSelectProps: {
+          data: Object.values(StatusPengajuan),
+          required: true,
+          error: validationErrors?.status_pengajuan,
+          onFocus: () =>
+            setValidationErrors({
+              ...validationErrors,
+              status_pengajuan: undefined,
+            }),
+        },
+      },
+      {
+        accessorKey: 'created_at',
+        header: 'Tanggal Pengajuan',
+        enableEditing: false,
+        size: 200,
+      },
+    ],
+    [profiles, validationErrors],
+  );
 
   const handleSavePengajuan: MRT_TableOptions<Pengajuan>['onEditingRowSave'] = async ({ values, table }) => {
     try {
@@ -86,67 +150,33 @@ const TabelPengajuanAdmin = () => {
     });
   };
 
+  const handleExportRows = (rows: MRT_Row<Pengajuan>[]) => {
+    const doc = new jsPDF();
+
+    // Add the title
+    const title = 'Daftar Pengajuan Inventaris';
+    doc.setFontSize(18);
+    doc.text(title, 14, 22); // Positioning the title
+
+    // Add some spacing before the table
+    const startY = 30;
+
+    const tableHeaders = columns.map((c) => c.header);
+    const tableData = rows.map((row) =>
+      columns.map((column) => row.original[column.accessorKey as keyof Pengajuan])
+    );
+
+    autoTable(doc, {
+      head: [tableHeaders],
+      body: tableData,
+      startY, // Start the table below the title
+    });
+
+    doc.save('pengajuan-data.pdf');
+  };
+
   const table = useMantineReactTable({
-    columns: useMemo<MRT_ColumnDef<Pengajuan>[]>(
-      () => [
-        {
-          accessorKey: 'profile_id',
-          header: 'Profile Name',
-          enableEditing: false,
-          Cell: ({ cell }) => {
-            const profile = profiles.find(p => p.id === cell.getValue<string>());
-            return profile ? profile.nama_lengkap : 'Unknown';
-          },
-          size: 150,
-        },
-        {
-          accessorKey: 'jenis_inventaris',
-          header: 'Jenis Inventaris',
-          enableEditing: false,
-          size: 150,
-        },
-        {
-          accessorKey: 'nama_inventaris',
-          header: 'Nama Inventaris',
-          enableEditing: false,
-          size: 150,
-        },
-        {
-          accessorKey: 'keperluan',
-          header: 'Keperluan',
-          enableEditing: false,
-          size: 200,
-        },
-        {
-          accessorKey: 'deskripsi',
-          header: 'Deskripsi',
-          enableEditing: false,
-          size: 250,
-        },
-        {
-          accessorKey: 'status_pengajuan',
-          header: 'Status Pengajuan',
-          editVariant: 'select',
-          mantineEditSelectProps: {
-            data: Object.values(StatusPengajuan),
-            required: true,
-            error: validationErrors?.status_pengajuan,
-            onFocus: () =>
-              setValidationErrors({
-                ...validationErrors,
-                status_pengajuan: undefined,
-              }),
-          },
-        },
-        {
-          accessorKey: 'created_at',
-          header: 'Tanggal Pengajuan',
-          enableEditing: false,
-          size: 200,
-        },
-      ],
-      [profiles, validationErrors],
-    ),
+    columns,
     data: fetchedPengajuan,
     editDisplayMode: 'row',
     enableEditing: true,
@@ -172,6 +202,29 @@ const TabelPengajuanAdmin = () => {
           </ActionIcon>
         </Tooltip>
       </Flex>
+    ),
+    renderTopToolbarCustomActions: ({ table }) => (
+      <Box
+        style={{
+          display: 'flex',
+          gap: '16px',
+          padding: '8px',
+          flexWrap: 'wrap',
+        }}
+      >
+        <Button
+          disabled={table.getPrePaginationRowModel().rows.length === 0}
+          //export all rows, including from the next page, (still respects filtering and sorting)
+          onClick={() =>
+            handleExportRows(table.getPrePaginationRowModel().rows)
+          }
+          variant="filled"
+          color="red"
+        >
+          Unduh PDF
+        </Button>
+      </Box>
+
     ),
     state: {
       isLoading: isLoadingPengajuan,

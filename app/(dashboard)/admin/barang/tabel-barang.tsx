@@ -170,7 +170,6 @@ const TabelBarangAdmin = () => {
     }
   };
 
-
   const handleSaveBarang: MRT_TableOptions<Barang>['onEditingRowSave'] = async ({ values, table }) => {
     try {
       const newValidationErrors = validateBarang(values);
